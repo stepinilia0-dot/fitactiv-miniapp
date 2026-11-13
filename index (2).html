@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Мой прогресс</title>
+<style>
+  :root {
+    --bg: #15181c;
+    --surface: #1e2228;
+    --surface-2: #262b33;
+    --border: #2f353f;
+    --txt: #e6e8ea;
+    --mut: #8b919a;
+    --acc: #5b8fd9;
+    --acc-soft: #5b8fd922;
+    --p: #9b59b6;
+    --f: #e1b12c;
+    --c: #16a085;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  
+  body {
+    background: var(--bg);
+    color: var(--txt);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    justify-content: center; /* Центрируем контент по горизонтали */
+  }
+
+  /* ===== КОНТЕЙНЕР ДЛЯ МОБИЛЬНОГО ЭКРАНА ===== */
+  .app-container {
+    width: 100%;
+    max-width: 480px; /* Ограничиваем ширину как у мобильного */
+    padding: 16px 14px 90px;
+    position: relative;
+  }
+
+  /* ===== ШАПКА ===== */
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .greet { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }
+  .greet span { color: var(--acc); }
+  .subgreet { font-size: 13px; color: var(--mut); margin-top: 2px; }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; color: var(--acc); font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  /* ===== СЕТКА ===== */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 14px;
+  }
+  .card.full { grid-column: 1 / -1; }
+  .card-title {
+    font-size: 11px; font-weight: 600; color: var(--mut);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 8px; display: flex; justify-content: space-between;
+  }
+  .card-title .val { color: var(--txt); font-size: 12px; }
+
+  /* ===== БОЛЬШИЕ ЦИФРЫ ===== */
+  .big-val { font-size: 28px; font-weight: 700; letter-spacing: -1px; line-height: 1; }
+  .big-val small { font-size: 12px; color: var(--mut); font-weight: 500; margin-left: 4px; letter-spacing: 0; }
+  .sub-val { font-size: 11px; color: var(--mut); margin-top: 4px; }
+
+  /* ===== ПРОГРЕСС-БАР ===== */
+  .bar { height: 5px; background: var(--surface-2); border-radius: 3px; overflow: hidden; margin-top: 10px; }
+  .bar i { display: block; height: 100%; border-radius: 3px; transition: width 0.6s; }
+  .bar.acc i { background: var(--acc); }
+  .bar.p i { background: var(--p); }
+  .bar.f i { background: var(--f); }
+  .bar.c i { background: var(--c); }
+
+  /* ===== КОЛЬЦО КАЛОРИЙ ===== */
+  .kcal-hero { display: flex; align-items: center; gap: 16px; }
+  .ring-wrap { position: relative; width: 100px; height: 100px; flex-shrink: 0; }
+  .ring-wrap svg { transform: rotate(-90deg); width: 100px; height: 100px; }
+  .ring-bg { stroke: var(--surface-2); }
+  .ring-fill { stroke: var(--acc); transition: stroke-dashoffset 0.8s; }
+  .ring-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .ring-center .num { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .ring-center .lbl { font-size: 9px; color: var(--mut); text-transform: uppercase; letter-spacing: 0.5px; }
+  .kcal-info { flex: 1; }
+  .kcal-info .row { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; }
+  .kcal-info .row .lbl { color: var(--mut); }
+  .kcal-info .row .val { font-weight: 600; }
+
+  /* ===== БЖУ ===== */
+  .macro .head { display: flex; justify-content: space-between; align-items: baseline; }
+  .macro .name { font-size: 11px; color: var(--mut); text-transform: uppercase; letter-spacing: 0.4px; }
+  .macro .num { font-size: 20px; font-weight: 700; margin-top: 4px; }
+  .macro .num small { font-size: 11px; color: var(--mut); font-weight: 500; }
+
+  /* ===== БЛЮДА ===== */
+  .meal-block { margin-bottom: 10px; }
+  .meal-name {
+    font-size: 11px; font-weight: 700; color: var(--acc);
+    text-transform: uppercase; letter-spacing: 0.6px;
+    margin-bottom: 6px; display: flex; justify-content: space-between;
+  }
+  .meal-name .sum { color: var(--mut); font-weight: 500; }
+  .meal-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 10px; background: var(--surface-2);
+    border-radius: 10px; margin-bottom: 6px;
+  }
+  .meal-item .info { flex: 1; min-width: 0; }
+  .meal-item .nm { font-size: 13px; }
+  .meal-item .sub { font-size: 10.5px; color: var(--mut); margin-top: 2px; }
+  .meal-item .kc { font-weight: 700; font-size: 13px; white-space: nowrap; padding-left: 8px; }
+  .tag {
+    display: inline-block; font-size: 8.5px; font-weight: 700;
+    padding: 1px 5px; border-radius: 4px; margin-left: 4px;
+    vertical-align: middle; letter-spacing: 0.2px;
+  }
+  .tag.sx { background: var(--acc-soft); color: var(--acc); }
+  .tag.est { background: #e1b12c22; color: var(--f); }
+  .tag.fs, .tag.off { background: var(--surface); color: var(--mut); }
+
+  /* ===== ИСТОРИЯ ===== */
+  .history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-top: 1px solid var(--border); }
+  .history-item:first-child { border-top: none; }
+  .history-item .date { font-size: 13px; font-weight: 600; }
+  .history-item .macros-sm { font-size: 11px; color: var(--mut); margin-top: 2px; }
+  .history-item .kc { font-size: 14px; font-weight: 700; }
+
+  /* ===== ПОДВАЛ (FIXED) ===== */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 480px; /* Та же ширина, что и у контейнера */
+    background: var(--surface); border-top: 1px solid var(--border);
+    display: flex; justify-content: space-around; padding: 8px 0 10px; z-index: 10;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    color: var(--mut); font-size: 10px; cursor: pointer; padding: 4px 0; transition: color 0.2s;
+  }
+  .nav-item.active { color: var(--acc); }
+  .nav-item svg { width: 20px; height: 20px; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- ШАПКА -->
+  <div class="header">
+    <div>
+      <div class="greet">Привет, <span id="user-name">Пользователь</span></div>
+      <div class="subgreet" id="today-date">—</div>
+    </div>
+    <div class="avatar" id="avatar">П</div>
+  </div>
+
+  <!-- ===== ВКЛАДКА: ДНЕВНИК ===== -->
+  <div id="tab-diary" class="tab-content active">
+
+    <!-- БЛОК 1: Калории + Остаток -->
+    <div class="grid">
+      <div class="card full">
+        <div class="card-title">
+          <span>Калории</span>
+          <span class="val" id="target-kcal">—</span>
+        </div>
+        <div class="kcal-hero">
+          <div class="ring-wrap">
+            <svg viewBox="0 0 120 120">
+              <circle class="ring-bg" cx="60" cy="60" r="52" fill="none" stroke-width="9"/>
+              <circle class="ring-fill" id="ring" cx="60" cy="60" r="52" fill="none" stroke-width="9"
+                      stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+            </svg>
+            <div class="ring-center">
+              <div class="num" id="eaten-kcal">0</div>
+              <div class="lbl">съедено</div>
+            </div>
+          </div>
+          <div class="kcal-info">
+            <div class="row"><span class="lbl">Норма</span><span class="val" id="norm-kcal">—</span></div>
+            <div class="row"><span class="lbl">Съедено</span><span class="val" id="eaten-kcal-2">0</span></div>
+            <div class="row"><span class="lbl">Осталось</span><span class="val" id="left-kcal">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- БЛОК 2: БЖУ как отдельные плитки -->
+      <div class="card macro">
+        <div class="head"><span class="name">Белки</span></div>
+        <div class="num"><span id="p-val">0</span> <small id="p-norm">/0 г</small></div>
+        <div class="bar p"><i id="p-bar" style="width:0%"></i></div>
+      </div>
+      <div class="card macro">
+        <div class="head"><span class="name">Жиры</span></div>
+        <div class="num"><span id="f-val">0</span> <small id="f-norm">/0 г</small></div>
+        <div class="bar f"><i id="f-bar" style="width:0%"></i></div>
+      </div>
+      <div class="card macro full">
+        <div class="head"><span class="name">Углеводы</span></div>
+        <div class="num"><span id="c-val">0</span> <small id="c-norm">/0 г</small></div>
+        <div class="bar c"><i id="c-bar" style="width:0%"></i></div>
+      </div>
+    </div>
+
+    <!-- БЛОК 3: Приёмы пищи -->
+    <div class="card full">
+      <div class="card-title">Сегодня</div>
+      <div id="today-meals"></div>
+    </div>
+  </div>
+
+  <!-- ===== ВКЛАДКА: ИСТОРИЯ ===== -->
+  <div id="tab-history" class="tab-content">
+    <div class="card">
+      <div class="card-title">Последние дни</div>
+      <div id="history-list"></div>
+    </div>
+  </div>
+
+  <!-- ===== ВКЛАДКА: ПРОФИЛЬ ===== -->
+  <div id="tab-profile" class="tab-content">
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">Цель</div>
+        <div class="big-val" id="profile-goal" style="font-size:18px">—</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Норма</div>
+        <div class="big-val" id="profile-kcal">—<small>ккал</small></div>
+      </div>
+      <div class="card full">
+        <div class="card-title">Данные</div>
+        <div class="sub-val" style="color:var(--txt);font-size:13px">20 лет · 169 см · 49.5 кг</div>
+        <div class="sub-val" style="margin-top:4px">ИМТ 17.3 · Женский</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПОДВАЛ -->
+  <div class="bottom-nav">
+    <div class="nav-item active" data-tab="diary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      <span>Дневник</span>
+    </div>
+    <div class="nav-item" data-tab="history">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <span>История</span>
+    </div>
+    <div class="nav-item" data-tab="profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+      <span>Профиль</span>
+    </div>
+  </div>
+
+</div> <!-- Закрываем app-container -->
+
+<script>
+// ===== ТЕСТОВЫЕ ДАННЫЕ =====
+const TEST_DATA = {
+  client: 'Пользователь',
+  target: { kcal: 1950, p: 115, f: 55, c: 250 },
+  goal: 'Рекомпозиция',
+  today: {
+    date: new Date().toISOString().slice(0, 10),
+    meals: [
+      { meal: 'завтрак', name: 'Овсянка 60г', kcal: 130, p: 5, f: 3, c: 24, weight_g: 60, source: 'SearXNG' },
+      { meal: 'завтрак', name: 'Яйцо варёное', kcal: 78, p: 6, f: 5, c: 1, weight_g: 55, source: 'SearXNG' },
+      { meal: 'обед', name: 'Гречка 150г', kcal: 165, p: 6, f: 1, c: 34, weight_g: 150, source: 'SearXNG' },
+      { meal: 'обед', name: 'Куриная грудка 150г', kcal: 248, p: 46, f: 5, c: 0, weight_g: 150, source: 'SearXNG≈' },
+      { meal: 'ужин', name: 'Творог Вкуснотеево 5% 200г', kcal: 242, p: 36, f: 10, c: 6, weight_g: 200, source: 'SearXNG' }
+    ]
+  },
+  history: [
+    { date: '2026-11-12', kcal: 1720, p: 105, f: 50, c: 210 },
+    { date: '2026-11-11', kcal: 1890, p: 112, f: 58, c: 235 },
+    { date: '2026-11-10', kcal: 1810, p: 108, f: 52, c: 225 }
+  ]
+};
+
+const MEAL_ORDER = ['завтрак', 'перекус', 'обед', 'полдник', 'ужин'];
+
+function fmtDate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  const months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+  return `${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+function sourceTag(src) {
+  if (!src) return '';
+  if (src.startsWith('SearXNG≈')) return '<span class="tag sx">≈SX</span>';
+  if (src.startsWith('SearXNG')) return '<span class="tag sx">SX</span>';
+  if (src.startsWith('FatSecret')) return '<span class="tag fs">FS</span>';
+  if (src.startsWith('OpenFoodFacts')) return '<span class="tag off">OFF</span>';
+  if (src === 'оценка') return '<span class="tag est">≈</span>';
+  return '';
+}
+
+function renderRing(eaten, norm) {
+  const ring = document.getElementById('ring');
+  const total = 326.7;
+  const pct = Math.min(1, norm > 0 ? eaten / norm : 0);
+  ring.style.strokeDashoffset = total * (1 - pct);
+}
+
+function renderMacro(id, val, norm) {
+  const pct = norm > 0 ? Math.min(100, val / norm * 100) : 0;
+  document.getElementById(id + '-val').textContent = Math.round(val);
+  document.getElementById(id + '-norm').textContent = '/' + norm + ' г';
+  document.getElementById(id + '-bar').style.width = pct + '%';
+}
+
+function renderMeals(meals) {
+  const groups = {};
+  meals.forEach(m => {
+    const k = m.meal || '—';
+    if (!groups[k]) groups[k] = [];
+    groups[k].push(m);
+  });
+  const order = Object.keys(groups).sort((a, b) => {
+    const ia = MEAL_ORDER.indexOf(a.toLowerCase());
+    const ib = MEAL_ORDER.indexOf(b.toLowerCase());
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+  });
+
+  const html = order.map(k => {
+    const items = groups[k];
+    const sum = items.reduce((s, m) => s + m.kcal, 0);
+    const itemsHtml = items.map(m => {
+      const w = m.weight_g ? ` · ${Math.round(m.weight_g)} г` : '';
+      const tag = sourceTag(m.source);
+      return `
+        <div class="meal-item">
+          <div class="info">
+            <div class="nm">${m.name}${tag}</div>
+            <div class="sub">Б${Math.round(m.p)} · Ж${Math.round(m.f)} · У${Math.round(m.c)}${w}</div>
+          </div>
+          <div class="kc">${Math.round(m.kcal)}</div>
+        </div>`;
+    }).join('');
+    return `
+      <div class="meal-block">
+        <div class="meal-name">${k}<span class="sum">${Math.round(sum)} ккал</span></div>
+        ${itemsHtml}
+      </div>`;
+  }).join('');
+
+  document.getElementById('today-meals').innerHTML = html || '<div style="color:var(--mut);padding:10px 0">Пока ничего не записано</div>';
+}
+
+function render() {
+  const d = TEST_DATA;
+  const today = d.today;
+  const target = d.target;
+
+  // Шапка
+  document.getElementById('user-name').textContent = d.client;
+  document.getElementById('avatar').textContent = d.client.charAt(0).toUpperCase();
+  document.getElementById('today-date').textContent =
+    new Date(today.date + 'T00:00:00').toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  // Суммы
+  const totals = today.meals.reduce((a, m) => ({
+    kcal: a.kcal + m.kcal, p: a.p + m.p, f: a.f + m.f, c: a.c + m.c
+  }), { kcal: 0, p: 0, f: 0, c: 0 });
+
+  // Кольцо
+  document.getElementById('eaten-kcal').textContent = Math.round(totals.kcal);
+  document.getElementById('eaten-kcal-2').textContent = Math.round(totals.kcal) + ' ккал';
+  document.getElementById('norm-kcal').textContent = target.kcal + ' ккал';
+  document.getElementById('target-kcal').textContent = target.kcal + ' ккал';
+  document.getElementById('left-kcal').textContent = (target.kcal - totals.kcal) + ' ккал';
+  renderRing(totals.kcal, target.kcal);
+
+  // БЖУ
+  renderMacro('p', totals.p, target.p);
+  renderMacro('f', totals.f, target.f);
+  renderMacro('c', totals.c, target.c);
+
+  // Блюда
+  renderMeals(today.meals);
+
+  // Профиль
+  document.getElementById('profile-goal').textContent = d.goal;
+  document.getElementById('profile-kcal').innerHTML = target.kcal + '<small> ккал</small>';
+
+  // История
+  const historyHtml = d.history.map(h => `
+    <div class="history-item">
+      <div>
+        <div class="date">${fmtDate(h.date)}</div>
+        <div class="macros-sm">Б ${h.p} · Ж ${h.f} · У ${h.c}</div>
+      </div>
+      <div class="kc">${h.kcal}</div>
+    </div>
+  `).join('');
+  document.getElementById('history-list').innerHTML = historyHtml;
+}
+
+// ===== ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ВКЛАДОК =====
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('tab-' + item.dataset.tab).classList.add('active');
+  });
+});
+
+render();
+</script>
+</body>
+</html>
